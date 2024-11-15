@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Code Modifier</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.0/themes/prism.min.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="title has-text-centered">AI-Powered Code Modifier</h1>
+
+        <div class="box chat-box" id="chat-box" style="height: 300px; overflow-y: auto;">
+            <!-- Chat entries will appear here -->
+        </div>
+
+        <h3 class="subtitle">Code Input:</h3>
+        <textarea class="textarea" id="initial_code" placeholder="Enter your code here" rows="5"></textarea>
+
+        <h3 class="subtitle">Modification Request:</h3>
+        <input type="text" class="input" id="modification_request" placeholder="Describe your modification">
+
+        <div class="buttons is-centered">
+            <button class="button is-primary" onclick="sendModificationRequest()">Send Modification Request</button>
+            <button class="button is-success" onclick="executeCode()">Run Code</button>
+        </div>
+
+        <h3 class="subtitle">Execution Results:</h3>
+        <div>
+            <strong>Stdout:</strong>
+            <pre id="stdout_output" class="border rounded p-2" style="background-color: #f8f9fa;"></pre>
+        </div>
+        <div>
+            <strong>Stderr:</strong>
+            <pre id="stderr_output" class="border rounded p-2" style="background-color: #f8f9fa;"></pre>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">Loading...</div>
+        <div id="error_message" class="error-message has-text-danger" style="display: none;"></div>
+        <div id="success_message" class="success-message has-text-success" style="display: none;"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.0/prism.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
