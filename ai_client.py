@@ -3,55 +3,60 @@ import json
 from config import FIREWORKS_API_KEY
 import logging
 
-def get_qwen_response(code, request, memory_context=None):
+# Fireworks API call helper
+def call_fireworks_api(prompt, model="accounts/fireworks/models/qwen2p5-coder-32b-instruct"):
+    """
+    Helper function to call the Fireworks API with a prompt and retrieve the response.
+    """
     url = "https://api.fireworks.ai/inference/v1/chat/completions"
-    
-    # Define the prompt with clear instructions for output formatting
-    system_prompt = (
-        "You are an AI code assistant. "
-        "First, provide a brief explanation (1-3 sentences) about the modification. "
-        "Then output the modified Python code ONLY within a code block, "
-        "starting with ```python and ending with ```. "
-        "Do not include additional text outside of the code block at the end. "
-        "Ensure the code is complete and can be executed independently."
-    )
-    if memory_context:
-        system_prompt += f"\nUse the following memory to understand user’s past requests and context:\n{memory_context}"
-
-    # Construct the payload
     payload = {
-        "model": "accounts/fireworks/models/qwen2p5-coder-32b-instruct",
+        "model": model,
         "max_tokens": 4096,
-        "top_p": 1,
-        "top_k": 40,
-        "presence_penalty": 0,
-        "frequency_penalty": 0,
         "temperature": 0.6,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Here is the code:\n{code}\n\nPlease {request}."}
-        ]
+        "messages": [{"role": "user", "content": prompt}]
     }
-    
     headers = {
         "Accept": "application/json",
         "Content-Type": "application/json",
         "Authorization": f"Bearer {FIREWORKS_API_KEY}"
     }
-    
-    # Make the API request
+
     response = requests.post(url, headers=headers, data=json.dumps(payload))
-    
-    # Handle the response
     if response.status_code == 200:
         result = response.json()
-        logging.debug(f"API Response JSON: {result}")  # Log the full response
-
-        # Check if 'choices' and 'message' are in the response
         if 'choices' in result and len(result['choices']) > 0:
-            content = result['choices'][0]['message']['content']
-            return content
+            return result['choices'][0]['message']['content'].strip()
         else:
-            return "Error: No response received from Qwen."
+            logging.error("No choices found in the API response.")
+            return None
     else:
-        return f"Error: {response.status_code} - {response.text}"
+        logging.error(f"API call failed: {response.status_code} - {response.text}")
+        return None
+
+def get_qwen_response(code, request, memory_context=None):
+    """
+    Generate or refine Python code based on the provided request and memory context.
+    """
+    prompt = (
+        "You are an advanced Python code assistant. Your goal is to modify and improve the following code based on the user's request. "
+        "Ensure that the code is complete, executable, and follows Python best practices. "
+        "Do not provide any explanations, only output the Python code in a code block starting with ```python."
+    )
+    if memory_context:
+        prompt += f"\n\nMemory Context:\n{memory_context}"
+
+    prompt += f"\n\nCode:\n```\n{code}\n```\n\nUser Request: {request}"
+    return call_fireworks_api(prompt)
+
+def get_qwen_feedback(generated_code):
+    """
+    Provides executable feedback on the given Python code.
+    Instead of suggestions, it returns an improved/refined version of the code.
+    """
+    prompt = (
+        "You are an AI feedback assistant. The following Python code needs improvement in terms of correctness, efficiency, and best practices. "
+        "Generate an improved version of the code. Ensure the new code is executable and follows Python best practices. "
+        "Do not include any explanations. Provide only the Python code in a code block starting with ```python."
+        f"\n\nGenerated Code:\n```\n{generated_code}\n```"
+    )
+    return call_fireworks_api(prompt)

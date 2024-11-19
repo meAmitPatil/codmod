@@ -12,21 +12,29 @@
     <div class="container mt-5">
         <h1 class="title has-text-centered">AI-Powered Code Modifier</h1>
 
+        <!-- Chatbox for displaying messages -->
         <div class="box chat-box" id="chat-box" style="height: 300px; overflow-y: auto;">
             <!-- Chat entries will appear here -->
         </div>
 
+        <!-- Input Section -->
         <h3 class="subtitle">Code Input:</h3>
         <textarea class="textarea" id="initial_code" placeholder="Enter your code here" rows="5"></textarea>
 
         <h3 class="subtitle">Modification Request:</h3>
         <input type="text" class="input" id="modification_request" placeholder="Describe your modification">
 
+        <!-- Buttons for actions -->
         <div class="buttons is-centered">
             <button class="button is-primary" onclick="sendModificationRequest()">Send Modification Request</button>
             <button class="button is-success" onclick="executeCode()">Run Code</button>
         </div>
 
+        <!-- Generated Code Section -->
+        <h3 class="subtitle">Final Code:</h3>
+        <pre id="generated_code" class="box" style="background-color: #f8f9fa; overflow-x: auto;"></pre>
+
+        <!-- Execution Results -->
         <h3 class="subtitle">Execution Results:</h3>
         <div>
             <strong>Stdout:</strong>
@@ -37,6 +45,7 @@
             <pre id="stderr_output" class="border rounded p-2" style="background-color: #f8f9fa;"></pre>
         </div>
 
+        <!-- Status Messages -->
         <div id="loading" class="loading" style="display: none;">Loading...</div>
         <div id="error_message" class="error-message has-text-danger" style="display: none;"></div>
         <div id="success_message" class="success-message has-text-success" style="display: none;"></div>
