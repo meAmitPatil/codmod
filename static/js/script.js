@@ -23,17 +23,8 @@ async function sendModificationRequest() {
 
         const result = await response.json();
 
-        // Update the Final Code section
-        finalCode = result.generated_code;
-        document.getElementById('generated_code').textContent = finalCode;
-
-        // Display success message
-        document.getElementById('success_message').textContent = "Final code generated successfully!";
-        document.getElementById('success_message').style.display = 'block';
-
-        // Add final code to the chat box
-        addChatEntry(`You: ${modificationRequest}`, true);
-        addChatEntry(`Final Code:\n${finalCode}`);
+        // Add the generated code to the chatbox
+        addChatEntry(`AI: \n${result.generated_code}`);
     } catch (error) {
         // Handle errors
         console.error("Error:", error.message);
@@ -43,6 +34,35 @@ async function sendModificationRequest() {
         // Hide loading indicator
         document.getElementById('loading').style.display = 'none';
     }
+}
+
+function applyCode() {
+    // Locate the latest AI-generated code from the chat box
+    const chatBox = document.getElementById("chat-box");
+    const aiResponses = chatBox.getElementsByClassName("ai-response");
+    if (aiResponses.length === 0) {
+        alert("No AI-generated code available to apply.");
+        return;
+    }
+
+    // Extract the content of the last AI response
+    const latestCode = aiResponses[aiResponses.length - 1].innerText;
+
+    // Check if the response contains a code block and extract it
+    const codeBlockMatch = latestCode.match(/```python\s([\s\S]*?)```/); // Match Python code blocks
+    if (codeBlockMatch && codeBlockMatch[1]) {
+        finalCode = codeBlockMatch[1].trim(); // Extract and clean the code block
+    } else {
+        alert("No valid code block found in the AI response.");
+        return;
+    }
+
+    // Update the Final Code section with the extracted Python code
+    document.getElementById("generated_code").textContent = finalCode;
+
+    // Display success message
+    document.getElementById('success_message').textContent = "Code applied successfully!";
+    document.getElementById('success_message').style.display = 'block';
 }
 
 async function executeCode() {
