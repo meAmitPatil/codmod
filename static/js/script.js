@@ -1,13 +1,11 @@
-let finalCode = ""; // Store the final refined code globally for execution
-
+let finalCode = "";
 async function sendModificationRequest() {
     const initialCode = document.getElementById('initial_code').value;
     const modificationRequest = document.getElementById('modification_request').value;
 
-    // Show loading indicator
     document.getElementById('loading').style.display = 'block';
-    document.getElementById('error_message').style.display = 'none'; // Hide error message
-    document.getElementById('success_message').style.display = 'none'; // Hide success message
+    document.getElementById('error_message').style.display = 'none'; 
+    document.getElementById('success_message').style.display = 'none'; 
 
     try {
         const response = await fetch('/modify_code', {
@@ -23,26 +21,38 @@ async function sendModificationRequest() {
 
         const result = await response.json();
 
-        // Update the Final Code section
-        finalCode = result.generated_code;
-        document.getElementById('generated_code').textContent = finalCode;
-
-        // Display success message
-        document.getElementById('success_message').textContent = "Final code generated successfully!";
-        document.getElementById('success_message').style.display = 'block';
-
-        // Add final code to the chat box
-        addChatEntry(`You: ${modificationRequest}`, true);
-        addChatEntry(`Final Code:\n${finalCode}`);
+        addChatEntry(`AI: \n${result.generated_code}`);
     } catch (error) {
-        // Handle errors
         console.error("Error:", error.message);
         document.getElementById('error_message').textContent = error.message;
         document.getElementById('error_message').style.display = 'block';
     } finally {
-        // Hide loading indicator
         document.getElementById('loading').style.display = 'none';
     }
+}
+
+function applyCode() {
+    const chatBox = document.getElementById("chat-box");
+    const aiResponses = chatBox.getElementsByClassName("ai-response");
+    if (aiResponses.length === 0) {
+        alert("No AI-generated code available to apply.");
+        return;
+    }
+
+    const latestCode = aiResponses[aiResponses.length - 1].innerText;
+
+    const codeBlockMatch = latestCode.match(/```python\s([\s\S]*?)```/);
+    if (codeBlockMatch && codeBlockMatch[1]) {
+        finalCode = codeBlockMatch[1].trim();
+    } else {
+        alert("No valid code block found in the AI response.");
+        return;
+    }
+
+    document.getElementById("generated_code").textContent = finalCode;
+
+    document.getElementById('success_message').textContent = "Code applied successfully!";
+    document.getElementById('success_message').style.display = 'block';
 }
 
 async function executeCode() {
@@ -51,7 +61,6 @@ async function executeCode() {
         return;
     }
 
-    // Show loading indicator
     document.getElementById('loading').style.display = 'block';
 
     try {
@@ -68,20 +77,16 @@ async function executeCode() {
 
         const result = await response.json();
 
-        // Update the execution result sections
         document.getElementById('stdout_output').textContent = result.stdout || "No output generated";
         document.getElementById('stderr_output').textContent = result.stderr || "No errors";
 
-        // Display success message
         document.getElementById('success_message').textContent = "Code executed successfully!";
         document.getElementById('success_message').style.display = 'block';
     } catch (error) {
-        // Handle errors
         console.error("Error:", error.message);
         document.getElementById('error_message').textContent = error.message;
         document.getElementById('error_message').style.display = 'block';
     } finally {
-        // Hide loading indicator
         document.getElementById('loading').style.display = 'none';
     }
 }
@@ -98,5 +103,5 @@ function addChatEntry(content, isUser = false) {
     }
 
     chatBox.appendChild(entry);
-    chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
